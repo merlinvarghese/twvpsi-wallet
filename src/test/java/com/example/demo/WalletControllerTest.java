@@ -40,17 +40,18 @@ class WalletControllerTest {
         .content("{\"name\":\"Merlin\",\"balance\":1000}")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isCreated())
-        .andExpect(content().json("{\"name\":\"Merlin\",\"balance\":1000}"));;
+        .andExpect(content().json("{\"name\":\"Merlin\",\"balance\":1000}"));
 
     mockMvc.perform(post("/wallets")
         .content("{\"name\":\"George\",\"balance\":2000}")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isCreated())
-        .andExpect(content().json("{\"name\":\"George\",\"balance\":2000}"));;
+        .andExpect(content().json("{\"name\":\"George\",\"balance\":2000}"));
 
 
     mockMvc.perform(get("/wallets/list")).andExpect(status().isOk())
-        .andDo(print()).andReturn().getResponse().getContentAsString();
+        .andExpect(content().json("[{\"name\":\"Merlin\",\"balance\":1000.0}," +
+            "{\"name\":\"George\",\"balance\":2000.0}]"));
   }
 
 
@@ -60,11 +61,9 @@ class WalletControllerTest {
     mockMvc.perform(post("/wallets")
         .content("{\"name\":\"Merlin\",\"balance\":1000}")
         .contentType(MediaType.APPLICATION_JSON));
-    System.out.println("Add done");
 
     mockMvc.perform(post("/wallets/delete")
         .param("name","Merlin")
-        //.content("{\"name\":\"Merlin\",\"balance\":1000}")
         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
         .andDo(print()).andReturn().getResponse().getContentAsString();
 
@@ -75,7 +74,7 @@ class WalletControllerTest {
 
 
   @Test
-  void shouldWalletDetailsWithWalletService() throws Exception {
+  void shouldGetWalletDetailsWithWalletService() throws Exception {
 
     mockMvc.perform(post("/wallets")
         .content("{\"name\":\"Merlin\",\"balance\":1000}")

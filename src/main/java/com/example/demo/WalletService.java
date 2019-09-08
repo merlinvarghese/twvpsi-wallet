@@ -37,9 +37,6 @@ public class WalletService {
   @PostMapping
   @ResponseStatus(HttpStatus.OK)
   String removeWallet(@RequestParam String name){
-    System.out.println("Removing " + name);
-    System.out.println(wallets.remove(name));
-    System.out.println("Current Wallet HashMap " + wallets);
     return name;
   }
 

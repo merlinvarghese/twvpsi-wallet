@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ComponentScan(basePackageClasses = {
     WalletService.class
 })
-class WalletServiceTest {
+class WalletServiceMockTest {
 
   @Autowired
   private MockMvc mockMvc;
@@ -43,22 +43,22 @@ class WalletServiceTest {
 
   }
   @Test
-  void shouldListAllWalletsWithWalletService() throws Exception {
+  void shouldListAllWalletsWithMockWalletService() throws Exception {
     when(walletService.listWallets()).thenReturn(new Wallet[]{
         new Wallet("George", 2000),
         new Wallet("Merlin", 1000)
     });
 
     mockMvc.perform(get("/wallets/list")).andExpect(status().isOk())
-        .andExpect(content().json("[{\"name\":\"George\",\"balance\":2000.0},{\"name\":\"Merlin\",\"balance\":1000.0}]"));
-        //.andDo(print()).andReturn().getResponse().getContentAsString();
+        .andExpect(content().json("[{\"name\":\"George\",\"balance\":2000.0}," +
+            "{\"name\":\"Merlin\",\"balance\":1000.0}]"));
 
     verify(walletService).listWallets();
   }
 
 
   @Test
-  void shouldDeleteWalletWithWalletService() throws Exception {
+  void shouldDeleteWalletWithMockWalletService() throws Exception {
     when(walletService.removeWallet("Merlin")).thenReturn(new String("Merlin"));
 
     mockMvc.perform(post("/wallets/delete")
@@ -71,15 +71,14 @@ class WalletServiceTest {
 
 
   @Test
-  void shouldGetWalletDetailsForAUserWithWalletService() throws Exception {
+  void shouldGetWalletDetailsForAUserWithMockWalletService() throws Exception {
     when(walletService.getWalletDetails("Merlin")).thenReturn(new Wallet("Merlin", 1000));
 
     mockMvc.perform(post("/wallets/getWalletDetails")
         .param("name","Merlin")
         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-        .andDo(print()).andReturn().getResponse().getContentAsString();
+        .andExpect(content().json("{\"name\":\"Merlin\",\"balance\":1000}"));
 
     verify(walletService).getWalletDetails("Merlin");
   }
-
 }
