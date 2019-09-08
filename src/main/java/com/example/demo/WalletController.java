@@ -24,5 +24,16 @@ public class WalletController {
 
   }
 
+  @PostMapping("/getWalletDetails")
+  @ResponseStatus (HttpStatus.OK)
+  Wallet getWalletDetails(@RequestParam("name") String name){
+    return walletService.getWalletDetails(name);
+  }
 
+
+  @PostMapping("/delete")
+  @ResponseStatus (HttpStatus.OK)
+  String removeWallet(@RequestParam("name") String name){
+    return walletService.removeWallet(name);
+  }
 }

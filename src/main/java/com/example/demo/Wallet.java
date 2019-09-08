@@ -12,4 +12,8 @@ class Wallet {
     this.name = name;
     this.balance = balance;
   }
+
+  String getAccountHolderName() {
+    return name;
+  }
 }
