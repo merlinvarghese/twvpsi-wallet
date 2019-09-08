@@ -50,7 +50,8 @@ class WalletServiceTest {
     });
 
     mockMvc.perform(get("/wallets/list")).andExpect(status().isOk())
-        .andDo(print()).andReturn().getResponse().getContentAsString();
+        .andExpect(content().json("[{\"name\":\"George\",\"balance\":2000.0},{\"name\":\"Merlin\",\"balance\":1000.0}]"));
+        //.andDo(print()).andReturn().getResponse().getContentAsString();
 
     verify(walletService).listWallets();
   }
@@ -62,7 +63,6 @@ class WalletServiceTest {
 
     mockMvc.perform(post("/wallets/delete")
         .param("name","Merlin")
-        //.content("{\"name\":\"Merlin\",\"balance\":1000}")
         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
         .andDo(print()).andReturn().getResponse().getContentAsString();
 
@@ -71,7 +71,7 @@ class WalletServiceTest {
 
 
   @Test
-  void shouldWalletDetailsWithWalletService() throws Exception {
+  void shouldGetWalletDetailsForAUserWithWalletService() throws Exception {
     when(walletService.getWalletDetails("Merlin")).thenReturn(new Wallet("Merlin", 1000));
 
     mockMvc.perform(post("/wallets/getWalletDetails")

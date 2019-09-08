@@ -38,11 +38,15 @@ class WalletControllerTest {
 
     mockMvc.perform(post("/wallets")
         .content("{\"name\":\"Merlin\",\"balance\":1000}")
-        .contentType(MediaType.APPLICATION_JSON));
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isCreated())
+        .andExpect(content().json("{\"name\":\"Merlin\",\"balance\":1000}"));;
 
     mockMvc.perform(post("/wallets")
         .content("{\"name\":\"George\",\"balance\":2000}")
-        .contentType(MediaType.APPLICATION_JSON));
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isCreated())
+        .andExpect(content().json("{\"name\":\"George\",\"balance\":2000}"));;
 
 
     mockMvc.perform(get("/wallets/list")).andExpect(status().isOk())
