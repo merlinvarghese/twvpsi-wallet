@@ -86,7 +86,7 @@ class WalletControllerTest {
         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isCreated())
         .andDo(print()).andReturn().getResponse().getContentAsString();
 
-    mockMvc.perform(post("/wallets/getWalletDetails")
+    mockMvc.perform(get("/wallets/getWalletDetails")
         .param("name","Merlin")
         .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
         .andDo(print()).andReturn().getResponse().getContentAsString();

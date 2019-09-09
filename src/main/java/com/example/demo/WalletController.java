@@ -17,14 +17,14 @@ public class WalletController {
     return walletService.createWallet(wallet);
 
   }
-
+  /*
   @GetMapping("/list")
   Wallet[] listWallets(){
     return walletService.listWallets();
 
   }
 
-  @PostMapping("/getWalletDetails")
+  @GetMapping("/getWalletDetails")
   @ResponseStatus (HttpStatus.OK)
   Wallet getWalletDetails(@RequestParam("name") String name){
     return walletService.getWalletDetails(name);
@@ -33,7 +33,7 @@ public class WalletController {
 
   @PostMapping("/delete")
   @ResponseStatus (HttpStatus.OK)
-  String removeWallet(@RequestParam("name") String name){
+  String removeWallet(@RequestParam("name") String name) throws UserNotFoundException{
     return walletService.removeWallet(name);
-  }
+  }*/
 }

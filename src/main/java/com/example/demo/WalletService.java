@@ -1,32 +1,29 @@
 package com.example.demo;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @Service
 public class WalletService {
 
-  private Map<String, Wallet> wallets = new HashMap<String, Wallet>();
+  @Autowired
+  WalletRepository walletRepository;
 
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
   Wallet createWallet(@RequestBody Wallet wallet){
-    wallets.put(wallet.getAccountHolderName(), wallet);
+    walletRepository.save(wallet);
     return wallet;
   }
 
-  @GetMapping
-  Wallet[] listWallets(){
-    Wallet[] walletArray = new Wallet[wallets.size()];
-    wallets.values().toArray(walletArray);
+  //Wallet
+ /* Wallet[] listWallets(){
+    walletRepository.findById()
     return walletArray;
-  }
+  }*/
 
-  @PostMapping
+/*  @PostMapping
   @ResponseStatus(HttpStatus.OK)
   Wallet getWalletDetails(@RequestParam String name){
     return wallets.get(name);
@@ -35,8 +32,13 @@ public class WalletService {
 
   @PostMapping
   @ResponseStatus(HttpStatus.OK)
-  String removeWallet(@RequestParam String name){
-    return name;
-  }
+  String removeWallet(@RequestParam String name) throws UserNotFoundException{
+
+    if(wallets.containsKey(name)){
+      wallets.remove(name);
+      return name;
+    }
+    throw new UserNotFoundException();
+  }*/
 
 }
