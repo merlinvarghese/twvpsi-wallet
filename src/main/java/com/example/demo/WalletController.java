@@ -17,23 +17,4 @@ public class WalletController {
     return walletService.createWallet(wallet);
 
   }
-  /*
-  @GetMapping("/list")
-  Wallet[] listWallets(){
-    return walletService.listWallets();
-
-  }
-
-  @GetMapping("/getWalletDetails")
-  @ResponseStatus (HttpStatus.OK)
-  Wallet getWalletDetails(@RequestParam("name") String name){
-    return walletService.getWalletDetails(name);
-  }
-
-
-  @PostMapping("/delete")
-  @ResponseStatus (HttpStatus.OK)
-  String removeWallet(@RequestParam("name") String name) throws UserNotFoundException{
-    return walletService.removeWallet(name);
-  }*/
 }

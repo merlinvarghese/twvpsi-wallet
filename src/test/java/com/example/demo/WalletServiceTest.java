@@ -34,8 +34,10 @@ class WalletServiceTest {
   void shouldCreateUserWithService() {
     Wallet wallet = new Wallet("Merlin", 500);
     Wallet expected = walletService.createWallet(wallet);
+
     Optional<Wallet> createdWallet = walletRepository.findById(expected.getId());
     Wallet actual = createdWallet.get();
+
     assertEquals(expected, actual);
 
   }
