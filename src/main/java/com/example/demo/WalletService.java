@@ -21,7 +21,6 @@ public class WalletService {
 
   @GetMapping
   Wallet[] listWallets(){
-    System.out.println("listWallets invoked!");
     Wallet[] walletArray = new Wallet[wallets.size()];
     wallets.values().toArray(walletArray);
     return walletArray;
