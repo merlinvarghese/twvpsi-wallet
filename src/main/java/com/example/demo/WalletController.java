@@ -17,4 +17,12 @@ public class WalletController {
     return walletService.createWallet(wallet);
 
   }
+
+  @GetMapping("")
+  @ResponseStatus(HttpStatus.OK)
+  Wallet findWalletById(@RequestParam("id") Long id){
+    walletService.findWalletById(id);
+    return walletService.findWalletById(id).get();
+  }
+
 }

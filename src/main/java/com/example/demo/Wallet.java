@@ -20,21 +20,6 @@ class Wallet {
   @JsonProperty
   private double balance;
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Wallet wallet = (Wallet) o;
-    return Double.compare(wallet.balance, balance) == 0 &&
-        Objects.equals(id, wallet.id) &&
-        Objects.equals(name, wallet.name);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, name, balance);
-  }
-
   public Wallet() {
   }
 
@@ -53,5 +38,20 @@ class Wallet {
 
   public Long getId() {
     return id;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Wallet wallet = (Wallet) o;
+    return Double.compare(wallet.balance, balance) == 0 &&
+        Objects.equals(id, wallet.id) &&
+        Objects.equals(name, wallet.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, name, balance);
   }
 }

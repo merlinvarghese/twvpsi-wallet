@@ -33,13 +33,23 @@ class WalletServiceTest {
   @Test
   void shouldCreateUserWithService() {
     Wallet wallet = new Wallet("Merlin", 500);
+
     Wallet expected = walletService.createWallet(wallet);
 
     Optional<Wallet> createdWallet = walletRepository.findById(expected.getId());
     Wallet actual = createdWallet.get();
-
     assertEquals(expected, actual);
-
   }
 
+
+  @Test
+  void shouldFindUserWithService() {
+    Wallet wallet = new Wallet("Merlin", 500);
+    walletService.createWallet(wallet);
+
+    Optional<Wallet> createdWallet = walletRepository.findById((long)1);
+    Wallet actual = createdWallet.get();
+
+    assertEquals(wallet, actual);
+  }
 }
