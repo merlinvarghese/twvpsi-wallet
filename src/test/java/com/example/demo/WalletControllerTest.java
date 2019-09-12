@@ -14,8 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,8 +33,8 @@ class WalletControllerTest {
   WalletService walletService;
 
   @Test
-  void shouldCreateANewWalletWithGivenUserDetails() throws Exception {
-    Wallet wallet = new Wallet("Merlin", 1000);
+  void shouldCreateWalletForAUser() throws Exception {
+    Wallet wallet = new Wallet(1,"Merlin", 1000);
     ResponseEntity<Wallet> response = new ResponseEntity<>(wallet, HttpStatus.CREATED);
     when(walletService.createWallet(any(Wallet.class))).thenReturn(wallet);
 
@@ -43,13 +42,13 @@ class WalletControllerTest {
         .content("{\"name\":\"Merlin\",\"balance\":1000}")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isCreated())
-        .andExpect(content().json("{\"name\":\"Merlin\",\"balance\":1000}"));
+        .andExpect(content().json("{\"id\":1,\"name\":\"Merlin\",\"balance\":1000}"));
 
     verify(walletService).createWallet(any(Wallet.class));
   }
-
+/*
   @Test
-  void shouldReturnAWalletWithGivenUserid() throws Exception {
+  void shouldReturnAWalletWithGivenUserId() throws Exception {
 
     when(walletService.getWalletById((long) 1)).thenReturn(new Wallet("Merlin", 1000));
 
@@ -62,7 +61,7 @@ class WalletControllerTest {
   }
 
   @Test
-  void shouldReturnAWalletWithGivenUsername() throws Exception {
+  void shouldReturnAWalletWithGivenUserName() throws Exception {
     when(walletService.getWalletByName("Merlin")).thenReturn(new Wallet( "Merlin", 1000));
 
     mockMvc.perform(get("/wallets?name=Merlin")
@@ -71,7 +70,7 @@ class WalletControllerTest {
         .andExpect(content().json("[{\"name\":\"Merlin\",\"balance\":1000.0}]"));
 
     verify(walletService).getWalletByName(any(String.class));
-  }
+   }
 
   @Test
   void shouldReturnAllWalletsWhenNoUseridGiven() throws Exception {
@@ -100,14 +99,45 @@ class WalletControllerTest {
   @Test
   void shouldCreateTransactionOnWallet() throws Exception {
     Transaction transaction = new Transaction(Transaction.TransactionType.CREDIT, 1000);
-    when(walletService.performTransaction(any(Transaction.class), any(Long.class))).thenReturn(transaction);
+    when(walletService.createTransaction(any(Transaction.class), any(Long.class))).thenReturn(transaction);
 
     mockMvc.perform(post("/wallets/1/transactions")
         .content("{\"transactionType\":\"CREDIT\",\"amount\":100}")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isCreated());
 
-    verify(walletService).performTransaction(any(Transaction.class), any(Long.class));
+    verify(walletService).createTransaction(any(Transaction.class), any(Long.class));
   }
+
+  @Test
+  void shouldHandleExceptionWhenWalletWithIdNotFound() throws Exception {
+    when(walletService.getWalletById(10L)).thenThrow(NoWalletsFoundException.class);
+
+    mockMvc.perform(get("/wallets/10")).andExpect(status().isNotFound());
+    verify(walletService).getWalletById(10L);
+  }
+  /*
+
+  /*
+  @Test
+  void shouldHandleExceptionWhenTryingToDeleteAWalletNotPresent() throws Exception {
+    //when(walletService.deleteWallet(10L)).thenThrow(NoWalletsFoundException.class);
+    doThrow(NoWalletsFoundException).when();
+    mockMvc.perform(get("/wallets/10")).andExpect(status().isNotFound());
+
+
+  }
+
+  @Test
+  void shouldHandleExceptionWhenNoTransactionsFoundForAWallet() throws Exception {
+    when(walletService.getTransactions(10L)).thenThrow(NoWalletsFoundException.class);
+
+    mockMvc.perform(get("/wallets/10")).andExpect(status().isNotFound());
+    verify(walletService).getWalletById(10L);
+  }
+
+   */
+
+
 
 }
