@@ -34,7 +34,7 @@ class WalletControllerTest {
 
   @Test
   void shouldCreateWalletForAUser() throws Exception {
-    Wallet wallet = new Wallet(1,"Merlin", 1000);
+    Wallet wallet = new Wallet(1, "Merlin", 1000);
     ResponseEntity<Wallet> response = new ResponseEntity<>(wallet, HttpStatus.CREATED);
     when(walletService.createWallet(any(Wallet.class))).thenReturn(wallet);
 
@@ -46,6 +46,25 @@ class WalletControllerTest {
 
     verify(walletService).createWallet(any(Wallet.class));
   }
+
+  @Test
+  void shouldReturnAllWalletsWhenNoIdGiven() throws Exception {
+    List<Wallet> wallets = Arrays.asList(
+        new Wallet(1, "George", 1000.0),
+        new Wallet(2, "Joseph", 2000.0));
+    when(walletService.getAllWallets()).thenReturn(wallets);
+
+    mockMvc.perform(get("/wallets")
+        .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().json("[{\"name\":\"George\",\"balance\":1000.0}, {\"name\":\"Joseph\",\"balance\":2000.0}]"));
+
+    verify(walletService).getAllWallets();
+  }
+
+}
+
+
 /*
   @Test
   void shouldReturnAWalletWithGivenUserId() throws Exception {
@@ -140,4 +159,3 @@ class WalletControllerTest {
 
 
 
-}

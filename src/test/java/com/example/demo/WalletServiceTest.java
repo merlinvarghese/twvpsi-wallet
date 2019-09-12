@@ -43,8 +43,6 @@ class WalletServiceTest {
     transactionRepository.deleteAll();
   }
 
-  //@Nested
-  //class WalletCreation {
   @Test
   void expectWalletCreatedForAUser() {
     Wallet firstWallet = new Wallet("George", 1000);
@@ -56,6 +54,21 @@ class WalletServiceTest {
     assertNotNull(fetchedWallet);
     assertEquals(firstWallet.getName(), fetchedWallet.getName());
     assertEquals(firstWallet.getBalance(), fetchedWallet.getBalance());
+  }
+
+  @Test
+  void shouldReturnAllWallets() throws NoWalletsFoundException {
+    Wallet firstWallet = new Wallet("George", 1000);
+    Wallet secondWallet = new Wallet("Joseph", 1000);
+    Wallet createdFirstWallet = walletService.createWallet(firstWallet);
+    Wallet createdSecondWallet = walletService.createWallet(secondWallet);
+    List<Wallet> expectedWallets = new LinkedList<>();
+    expectedWallets.add(createdFirstWallet);
+    expectedWallets.add(createdSecondWallet);
+
+    List<Wallet> actualWallets = walletService.getAllWallets();
+
+    assertEquals(expectedWallets, actualWallets);
   }
 }
   /*}
