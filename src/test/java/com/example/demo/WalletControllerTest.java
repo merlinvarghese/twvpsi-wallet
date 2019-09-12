@@ -62,6 +62,32 @@ class WalletControllerTest {
     verify(walletService).getAllWallets();
   }
 
+  @Test
+  void shouldReturnAWalletWithGivenUserId() throws Exception {
+
+    when(walletService.getWalletById((long) 1)).thenReturn(new Wallet("Merlin", 1000));
+
+    mockMvc.perform(get("/wallets/{id}", "1")
+        .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().json("{\"name\":\"Merlin\",\"balance\":1000}"));
+
+    verify(walletService).getWalletById(any(Long.class));
+  }
+
+  @Test
+  void shouldReturnAWalletWithGivenUserName() throws Exception {
+    when(walletService.getWalletByName("Merlin")).thenReturn(new Wallet( "Merlin", 1000));
+
+    mockMvc.perform(get("/wallets?name=Merlin")
+        .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().json("[{\"name\":\"Merlin\",\"balance\":1000.0}]"));
+
+    verify(walletService).getWalletByName(any(String.class));
+  }
+
+
 }
 
 
@@ -91,20 +117,6 @@ class WalletControllerTest {
     verify(walletService).getWalletByName(any(String.class));
    }
 
-  @Test
-  void shouldReturnAllWalletsWhenNoUseridGiven() throws Exception {
-    List<Wallet> wallets = Arrays.asList(
-        new Wallet(1, "George", 1000.0),
-        new Wallet(2, "Joseph", 1000.0));
-    when(walletService.getAllWallets()).thenReturn(wallets);
-
-    mockMvc.perform(get("/wallets")
-        .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(content().json("[{\"name\":\"George\",\"balance\":1000.0}, {\"name\":\"Joseph\",\"balance\":1000.0}]"));
-
-    verify(walletService).getAllWallets();
-  }
 
   @Test
   void shouldDeleteWalletWithGivenUserid() throws Exception {

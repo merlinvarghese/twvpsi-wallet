@@ -22,18 +22,6 @@ class WalletServiceTest {
   @Autowired
   private WalletService walletService;
 
-  /*
-
-  @Test
-  void shouldFindUserWithService() {
-    Wallet wallet = new Wallet("Merlin", 500);
-    walletService.createWallet(wallet);
-
-    Optional<Wallet> createdWallet = walletRepository.findById((long)1);
-    Wallet actual = createdWallet.get();
-
-    assertEquals(wallet, actual);
-  }*/
   @Autowired
   TransactionRepository transactionRepository;
 
@@ -70,61 +58,47 @@ class WalletServiceTest {
 
     assertEquals(expectedWallets, actualWallets);
   }
+
+  @Test
+  void shouldFailWhenNoWalletsExists() throws NoWalletsFoundException {
+    assertThrows(NoWalletsFoundException.class, () -> walletService.getAllWallets());
+  }
+
+  @Test
+  void shouldReturnWalletWithGivenId() {
+    Wallet firstWallet = new Wallet( "George", 1000);
+
+    Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
+
+    assertDoesNotThrow(() -> walletService.getWalletById(createdGeorgeWallet.getId()));
+  }
+
+  @Test
+  void shouldFailWhenWalletWithGivenIdDoesNotExist() {
+    assertThrows(UserWalletDoesNotExistException.class, () -> walletService.getWalletById((long) 1));
+  }
+
+  @Test
+  void shouldReturnWalletWithGivenUserName() {
+    Wallet firstWallet = new Wallet("George", 1000);
+
+    Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
+
+    assertDoesNotThrow(() -> walletService.getWalletByName(createdGeorgeWallet.getName()));
+  }
+
+  @Test
+  void shouldFailWhenWalletWithGivenUsernameDoesNotExist() {
+    Wallet firstWallet = new Wallet("George", 1000);
+
+    walletService.createWallet(firstWallet);
+
+    assertThrows(UserWalletDoesNotExistException.class, () -> walletService.getWalletByName("Joseph"));
+  }
+
 }
   /*}
 /*
-    @Test
-    void shouldReturnWalletWithGivenId() {
-      Wallet firstWallet = new Wallet( "George", 1000);
-
-      Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
-
-      assertDoesNotThrow(() -> walletService.getWalletById(createdGeorgeWallet.getId()));
-    }
-
-    @Test
-    void shouldFailWhenWalletWithGivenIdDoesNotExist() {
-      assertThrows(UserWalletDoesNotExistException.class, () -> walletService.getWalletById((long) 1));
-    }
-
-    @Test
-    void shouldReturnWalletWithGivenUserName() {
-      Wallet firstWallet = new Wallet("George", 1000);
-
-      Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
-
-      assertDoesNotThrow(() -> walletService.getWalletByName(createdGeorgeWallet.getName()));
-    }
-
-    @Test
-    void shouldFailWhenWalletWithGivenUsernameDoesNotExist() {
-      Wallet firstWallet = new Wallet("George", 1000);
-
-      walletService.createWallet(firstWallet);
-
-      assertThrows(UserWalletDoesNotExistException.class, () -> walletService.getWalletByName("Joseph"));
-    }
-
-    @Test
-    void shouldReturnAllWallets() throws NoWalletsFoundException {
-      Wallet firstWallet = new Wallet("George", 1000);
-      Wallet secondWallet = new Wallet("Joseph", 1000);
-      Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
-      Wallet createdJosephWallet = walletService.createWallet(secondWallet);
-      List<Wallet> expectedWallets = new LinkedList<>();
-      expectedWallets.add(createdGeorgeWallet);
-      expectedWallets.add(createdJosephWallet);
-
-      List<Wallet> actualWallets = walletService.getAllWallets();
-
-      assertEquals(expectedWallets, actualWallets);
-    }
-
-    @Test
-    void shouldFailWhenNoWalletsExists() throws NoWalletsFoundException {
-      assertThrows(NoWalletsFoundException.class, () -> walletService.getAllWallets());
-    }
-
 
   @Nested
   class DeleteWallet {
