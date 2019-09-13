@@ -1,7 +1,6 @@
 package com.example.demo;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +22,7 @@ class WalletServiceTest {
   private WalletService walletService;
 
   @Autowired
-  TransactionRepository transactionRepository;
+  private TransactionRepository transactionRepository;
 
   @BeforeEach
   void setup() {
@@ -66,7 +65,7 @@ class WalletServiceTest {
 
   @Test
   void shouldReturnWalletWithGivenId() {
-    Wallet firstWallet = new Wallet( "George", 1000);
+    Wallet firstWallet = new Wallet("George", 1000);
 
     Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
 
@@ -98,7 +97,7 @@ class WalletServiceTest {
 
   @Test
   void expectWalletDeletedWithGivenUserId() throws UserWalletDoesNotExistException {
-    Wallet firstWallet = new Wallet( "George", 1000);
+    Wallet firstWallet = new Wallet("George", 1000);
     Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
 
     assertDoesNotThrow(() -> walletService.deleteWallet(createdGeorgeWallet.getId()));
@@ -153,7 +152,7 @@ class WalletServiceTest {
 
   @Test
   void shouldDeleteWalletAndItsTransactions() throws UserWalletDoesNotExistException {
-    Wallet firstWallet = new Wallet( "George", 1000);
+    Wallet firstWallet = new Wallet("George", 1000);
     Wallet createdWallet = walletService.createWallet(firstWallet);
     long createdWalletId = createdWallet.getId();
     Transaction credit = new Transaction(Transaction.TransactionType.CREDIT, 100);
@@ -168,6 +167,11 @@ class WalletServiceTest {
     assertTrue(count == 0);
   }
 
+  /*Write tests for fetch all transactions - 3 cases */
+
+  /*Write tests for yesterday's requirement*/
+
+  /*Write tests for validations" */
 
   private int getSavedTransactionsCount() {
     Iterable<Transaction> allTransactions = transactionRepository.findAll();
@@ -175,7 +179,6 @@ class WalletServiceTest {
     if (allTransactions instanceof Collection<?>) {
       size = ((Collection<?>) allTransactions).size();
     }
-
     return size;
   }
 

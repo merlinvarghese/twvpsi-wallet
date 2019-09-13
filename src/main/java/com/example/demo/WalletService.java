@@ -2,8 +2,8 @@ package com.example.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -14,16 +14,6 @@ public class WalletService {
 
   @Autowired
   WalletRepository walletRepository;
-
-  /*Wallet createWallet(@RequestBody Wallet wallet) {
-    walletRepository.save(wallet);
-    return wallet;
-  }
-
-  public Optional<Wallet> findWalletById(Long id) {
-    return walletRepository.findById(id);
-
-  }*/
 
   @Autowired
   private TransactionRepository transactionRepository;
@@ -38,7 +28,7 @@ public class WalletService {
       return wallet.get();
     }
 
-    throw new UserWalletDoesNotExistException("A Wallet with this user does not exist");
+    throw new UserWalletDoesNotExistException("A Wallet does not exist for this user");
   }
 
   Wallet getWalletByName(String inputName) throws UserWalletDoesNotExistException {
@@ -49,12 +39,13 @@ public class WalletService {
       }
     }
 
-    throw new UserWalletDoesNotExistException("A Wallet with this user name does not exist");
+    throw new UserWalletDoesNotExistException("A Wallet does not exist for this user");
   }
 
   List<Wallet> getAllWallets() throws NoWalletsFoundException {
     List<Wallet> wallets = new LinkedList<>();
     Iterable<Wallet> fetchedWallets = walletRepository.findAll();
+
     for (Wallet wallet : fetchedWallets) {
       wallets.add(wallet);
     }
@@ -63,21 +54,20 @@ public class WalletService {
       return wallets;
     }
 
-    throw new NoWalletsFoundException("No Wallets available to fetch");
+    throw new NoWalletsFoundException("No Wallets found");
   }
 
-  @SuppressWarnings("CaughtExceptionImmediatelyRethrown")
   void deleteWallet(Long id) throws UserWalletDoesNotExistException {
     try {
       getWalletById(id);
-    } catch (UserWalletDoesNotExistException ex) {
-      throw ex;
+    } catch (UserWalletDoesNotExistException walletNotFound) {
+      throw walletNotFound;
     }
 
     walletRepository.deleteById(id);
   }
 
-  public Transaction performTransaction(Transaction transaction, Long walletId) throws UserWalletDoesNotExistException {
+  public Transaction createTransaction(Transaction transaction, Long walletId) throws UserWalletDoesNotExistException {
     Wallet walletToUpdate = getWalletById(walletId);
     walletToUpdate.process(transaction);
     walletRepository.save(walletToUpdate);
@@ -85,4 +75,9 @@ public class WalletService {
     return updatedWallet.getTransactions().get(updatedWallet.getTransactionsSize() - 1);
   }
 
+  public List<Transaction> getTransactions(Wallet walletId) {
+
+    List transactions = new ArrayList();
+    return transactions;
   }
+}

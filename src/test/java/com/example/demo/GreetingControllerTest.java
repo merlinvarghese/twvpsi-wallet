@@ -19,14 +19,14 @@ class GreetingControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
-  @Test
+  //@Test
   void expectGetOnGreeting() throws Exception {
     mockMvc.perform(get("/greeting")).andExpect(status().isOk())
         .andExpect(content().string("Hello World"));
 
   }
 
-  @Test
+  //@Test
   void expectWelcomeUser() throws Exception {
     mockMvc.perform(get("/greeting/welcome?userName=Merlin")).andExpect(status().isOk())
         .andExpect(content().string("Hello Merlin"));

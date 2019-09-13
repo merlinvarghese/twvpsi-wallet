@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 
 @Entity
 public class Transaction {
@@ -25,7 +26,7 @@ public class Transaction {
 
   @ManyToOne
   @JsonIgnore
-  @JoinColumn(name="wallet_id")
+  @JoinColumn(name = "wallet_id")
   private Wallet wallet;
 
   public Transaction(TransactionType transactionType, double amount) {
@@ -42,11 +43,13 @@ public class Transaction {
   }
 
   @JsonIgnore
+ // @NotEmpty(message = "Please provide a transaction type")
   public TransactionType getTransactionType() {
     return transactionType;
   }
 
   @JsonIgnore
+  //@NotEmpty(message = "Please provide an amount")
   public double getAmount() {
     return amount;
   }
@@ -63,11 +66,9 @@ public class Transaction {
   public double getConvertedAmount() {
     if (transactionType.equals(TransactionType.CREDIT)) {
       return amount;
-    }
-    else if (transactionType.equals(TransactionType.DEBIT)) {
+    } else if (transactionType.equals(TransactionType.DEBIT)) {
       return amount * -1;
     }
-
     return 0;
   }
 }

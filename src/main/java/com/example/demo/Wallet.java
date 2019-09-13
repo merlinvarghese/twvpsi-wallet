@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -17,12 +18,14 @@ class Wallet {
   private Long id;
 
   @JsonProperty
+  //@NotEmpty(message = "Please provide a name")
   private String name;
 
   @JsonProperty
+  //@NotEmpty(message = "Please provide a balance amount")
   private double balance;
 
-  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL,mappedBy = "wallet")
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "wallet")
   private List<Transaction> transactions;
 
   Wallet(String name, double balance) {
@@ -45,6 +48,7 @@ class Wallet {
   Wallet() {
 
   }
+
   @JsonIgnore
   public Long getId() {
     return id;
