@@ -96,25 +96,22 @@ class WalletServiceTest {
     assertThrows(UserWalletDoesNotExistException.class, () -> walletService.getWalletByName("Joseph"));
   }
 
+  @Test
+  void expectWalletDeletedWithGivenUserId() throws UserWalletDoesNotExistException {
+    Wallet firstWallet = new Wallet( "George", 1000);
+    Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
+
+    assertDoesNotThrow(() -> walletService.deleteWallet(createdGeorgeWallet.getId()));
+  }
+
+  @Test
+  void expectCannotDeleteWalletWhenWalletWithGivenUserIdDoesNotExist() throws UserWalletDoesNotExistException {
+    assertThrows(UserWalletDoesNotExistException.class, () -> walletService.deleteWallet((long) 100));
+  }
+
 }
   /*}
 /*
-
-  @Nested
-  class DeleteWallet {
-    @Test
-    void expectWalletDeletedWithGivenUserId() throws UserWalletDoesNotExistException {
-      Wallet firstWallet = new Wallet( "George", 1000);
-      Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
-
-      assertDoesNotThrow(() -> walletService.deleteWallet(createdGeorgeWallet.getId()));
-    }
-
-    @Test
-    void expectFailsWhenWalletWithGivenUserIdDoesNotExist() throws UserWalletDoesNotExistException {
-      assertThrows(UserWalletDoesNotExistException.class, () -> walletService.deleteWallet((long) 100));
-    }
-  }
 
   @Nested
   class TransactionTests {

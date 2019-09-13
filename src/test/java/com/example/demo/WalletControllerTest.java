@@ -77,7 +77,7 @@ class WalletControllerTest {
 
   @Test
   void shouldReturnAWalletWithGivenUserName() throws Exception {
-    when(walletService.getWalletByName("Merlin")).thenReturn(new Wallet( "Merlin", 1000));
+    when(walletService.getWalletByName("Merlin")).thenReturn(new Wallet("Merlin", 1000));
 
     mockMvc.perform(get("/wallets?name=Merlin")
         .accept(MediaType.APPLICATION_JSON))
@@ -87,45 +87,17 @@ class WalletControllerTest {
     verify(walletService).getWalletByName(any(String.class));
   }
 
-
-}
-
-
-/*
   @Test
-  void shouldReturnAWalletWithGivenUserId() throws Exception {
-
-    when(walletService.getWalletById((long) 1)).thenReturn(new Wallet("Merlin", 1000));
-
-    mockMvc.perform(get("/wallets/{id}", "1")
-        .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(content().json("{\"name\":\"Merlin\",\"balance\":1000}"));
-
-    verify(walletService).getWalletById(any(Long.class));
-  }
-
-  @Test
-  void shouldReturnAWalletWithGivenUserName() throws Exception {
-    when(walletService.getWalletByName("Merlin")).thenReturn(new Wallet( "Merlin", 1000));
-
-    mockMvc.perform(get("/wallets?name=Merlin")
-        .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(content().json("[{\"name\":\"Merlin\",\"balance\":1000.0}]"));
-
-    verify(walletService).getWalletByName(any(String.class));
-   }
-
-
-  @Test
-  void shouldDeleteWalletWithGivenUserid() throws Exception {
+  void shouldDeleteWalletWithGivenUserId() throws Exception {
     mockMvc.perform(delete("/wallets/{id}", "1")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
     verify(walletService).deleteWallet(any(Long.class));
   }
+}
+
+/*
 
   @Test
   void shouldCreateTransactionOnWallet() throws Exception {
