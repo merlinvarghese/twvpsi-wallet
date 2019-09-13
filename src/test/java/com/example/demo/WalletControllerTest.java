@@ -19,7 +19,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @ComponentScan(basePackageClasses = {
     WalletService.class
 })
@@ -95,9 +94,6 @@ class WalletControllerTest {
 
     verify(walletService).deleteWallet(any(Long.class));
   }
-}
-
-/*
 
   @Test
   void shouldCreateTransactionOnWallet() throws Exception {
@@ -111,7 +107,9 @@ class WalletControllerTest {
 
     verify(walletService).createTransaction(any(Transaction.class), any(Long.class));
   }
+}
 
+/*
   @Test
   void shouldHandleExceptionWhenWalletWithIdNotFound() throws Exception {
     when(walletService.getWalletById(10L)).thenThrow(NoWalletsFoundException.class);
@@ -128,7 +126,6 @@ class WalletControllerTest {
     doThrow(NoWalletsFoundException).when();
     mockMvc.perform(get("/wallets/10")).andExpect(status().isNotFound());
 
-
   }
 
   @Test
@@ -138,8 +135,4 @@ class WalletControllerTest {
     mockMvc.perform(get("/wallets/10")).andExpect(status().isNotFound());
     verify(walletService).getWalletById(10L);
   }
-
    */
-
-
-
