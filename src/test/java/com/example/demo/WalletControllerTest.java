@@ -159,5 +159,14 @@ class WalletControllerTest {
     verify(walletService, never()).createWallet(any(Wallet.class));
   }
 
+  @Test
+  void expectBadRequestWhenUserNameIsTooLong() throws Exception {
+    mockMvc.perform(post("/wallets")
+        .content("{\"name\":\"ANameTooooLong\", \"balance\":\"100\"}")
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest());
+
+    verify(walletService, never()).createWallet(any(Wallet.class));
+  }
 }
 

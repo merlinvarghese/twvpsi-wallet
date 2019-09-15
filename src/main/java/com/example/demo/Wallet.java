@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -20,10 +21,10 @@ class Wallet {
 
   @JsonProperty
   @NotEmpty(message = "Please provide a name")
+  @Size(min = 3,max=12)
   private String name;
 
   @JsonProperty
-  // @NotNull(message = "Please provide a balance amount")
   @DecimalMin("1.0")
   private double balance;
 
