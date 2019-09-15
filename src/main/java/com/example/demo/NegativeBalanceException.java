@@ -1,4 +1,4 @@
 package com.example.demo;
 
-public class NegativeBalanceException {
+public class NegativeBalanceException extends Exception {
 }

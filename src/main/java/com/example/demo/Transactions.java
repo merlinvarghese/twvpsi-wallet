@@ -4,12 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
+import java.util.Objects;
 
 @Entity
-public class Transaction {
+public class Transactions {
+
+  enum TransactionType {
+    DEBIT,
+    CREDIT
+  }
+
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @JsonProperty
   private Long id;
 
@@ -19,22 +25,23 @@ public class Transaction {
   @JsonProperty
   private double amount;
 
-  enum TransactionType {
-    DEBIT,
-    CREDIT
-  }
-
   @ManyToOne
   @JsonIgnore
   @JoinColumn(name = "wallet_id")
   private Wallet wallet;
 
-  public Transaction(TransactionType transactionType, double amount) {
+  public Transactions(TransactionType transactionType, double amount) {
     this.transactionType = transactionType;
     this.amount = amount;
   }
 
-  public Transaction() {
+  public Transactions(Long id, TransactionType transactionType, double amount) {
+    this.id = id;
+    this.transactionType = transactionType;
+    this.amount = amount;
+  }
+
+  Transactions() {
   }
 
   @JsonIgnore
@@ -43,7 +50,7 @@ public class Transaction {
   }
 
   @JsonIgnore
- // @NotEmpty(message = "Please provide a transaction type")
+  // @NotEmpty(message = "Please provide a transaction type")
   public TransactionType getTransactionType() {
     return transactionType;
   }
@@ -63,13 +70,30 @@ public class Transaction {
     this.wallet = walletToUpdate;
   }
 
-  public double getConvertedAmount() {
+  /*public double getConvertedAmount() {
     if (transactionType.equals(TransactionType.CREDIT)) {
       return amount;
     } else if (transactionType.equals(TransactionType.DEBIT)) {
       return amount * -1;
     }
     return 0;
+  }*/
+
+  double processedAmount() {
+    return transactionType.equals(TransactionType.CREDIT) ? amount : (amount * -1);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Transactions that = (Transactions) o;
+    return Objects.equals(id, that.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
   }
 }
 

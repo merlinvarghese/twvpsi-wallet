@@ -44,7 +44,7 @@ class WalletServiceTest {
   }
 
   @Test
-  void shouldReturnAllWallets() throws NoWalletsFoundException {
+  void expectAllWalletsReturnedWhenNoIDGiven() throws NoWalletsFoundException {
     Wallet firstWallet = new Wallet("George", 1000);
     Wallet secondWallet = new Wallet("Joseph", 1000);
     Wallet createdFirstWallet = walletService.createWallet(firstWallet);
@@ -59,12 +59,12 @@ class WalletServiceTest {
   }
 
   @Test
-  void shouldFailWhenNoWalletsExists() throws NoWalletsFoundException {
+  void expectNoWalletsFoundExceptionWhenTryingToFetchAllWallets() throws NoWalletsFoundException {
     assertThrows(NoWalletsFoundException.class, () -> walletService.getAllWallets());
   }
 
   @Test
-  void shouldReturnWalletWithGivenId() {
+  void expectWalletReturnedForAGivenId() {
     Wallet firstWallet = new Wallet("George", 1000);
 
     Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
@@ -73,12 +73,12 @@ class WalletServiceTest {
   }
 
   @Test
-  void shouldFailWhenWalletWithGivenIdDoesNotExist() {
-    assertThrows(UserWalletDoesNotExistException.class, () -> walletService.getWalletById((long) 1));
+  void expectNoWalletsFoundWhenWalletWithGivenIdDoesNotExist() {
+    assertThrows(NoWalletsFoundException.class, () -> walletService.getWalletById((long) 1));
   }
 
   @Test
-  void shouldReturnWalletWithGivenUserName() {
+  void expectWalletWhenFetchedUsingName() {
     Wallet firstWallet = new Wallet("George", 1000);
 
     Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
@@ -86,17 +86,18 @@ class WalletServiceTest {
     assertDoesNotThrow(() -> walletService.getWalletByName(createdGeorgeWallet.getName()));
   }
 
+
   @Test
-  void shouldFailWhenWalletWithGivenUsernameDoesNotExist() {
+  void expectNoWalletsFoundWhenWalletWithUsernameDoesNotExist() {
     Wallet firstWallet = new Wallet("George", 1000);
 
     walletService.createWallet(firstWallet);
 
-    assertThrows(UserWalletDoesNotExistException.class, () -> walletService.getWalletByName("Joseph"));
+    assertThrows(NoWalletsFoundException.class, () -> walletService.getWalletByName("Joseph"));
   }
 
   @Test
-  void expectWalletDeletedWithGivenUserId() throws UserWalletDoesNotExistException {
+  void expectWalletDeletedWithGivenUserId() throws NoWalletsFoundException {
     Wallet firstWallet = new Wallet("George", 1000);
     Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
 
@@ -104,60 +105,60 @@ class WalletServiceTest {
   }
 
   @Test
-  void expectCannotDeleteWalletWhenWalletWithGivenUserIdDoesNotExist() throws UserWalletDoesNotExistException {
-    assertThrows(UserWalletDoesNotExistException.class, () -> walletService.deleteWallet((long) 100));
+  void expectCannotDeleteWalletWhenWalletWithGivenUserIdDoesNotExist() throws NoWalletsFoundException {
+    assertThrows(NoWalletsFoundException.class, () -> walletService.deleteWallet((long) 100));
   }
 
   @Test
-  void shouldUpdateBalanceWithCreditTransaction() throws UserWalletDoesNotExistException {
+  void expectBalanceUpdatedWithCreditTransaction() throws NoWalletsFoundException,InsufficientBalanceException {
     Wallet firstWallet = new Wallet("George", 1000);
     Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
     long createdWalletId = createdGeorgeWallet.getId();
-    Transaction creditTransaction = new Transaction(Transaction.TransactionType.CREDIT, 100);
+    Transactions creditTransactions = new Transactions(Transactions.TransactionType.CREDIT, 100);
 
-    Transaction createdTransaction = walletService.createTransaction(creditTransaction, createdWalletId);
+    Transactions createdTransactions = walletService.performTransaction(creditTransactions, createdWalletId);
 
     Wallet fetchedWallet = walletRepository.findById(createdWalletId).get();
     assertTrue("1100.0".equals(fetchedWallet.getBalance()));
   }
 
   @Test
-  void shouldCreateTransactionForWallet() throws UserWalletDoesNotExistException {
+  void expectTransactionCreatedForWallet() throws NoWalletsFoundException,InsufficientBalanceException {
     Wallet firstWallet = new Wallet("George", 1000);
     Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
     long createdWalletId = createdGeorgeWallet.getId();
-    Transaction credit = new Transaction(Transaction.TransactionType.CREDIT, 100);
+    Transactions credit = new Transactions(Transactions.TransactionType.CREDIT, 100);
 
-    walletService.createTransaction(credit, createdWalletId);
+    walletService.performTransaction(credit, createdWalletId);
 
     Wallet fetchedWallet = walletRepository.findById(createdWalletId).get();
     assertEquals(1, fetchedWallet.getTransactionsSize());
   }
 
   @Test
-  void shouldCreateReferencesOfTransactionAndWalletOnEachOther() throws UserWalletDoesNotExistException {
+  void expectReferencesCreatedOfTransactionAndWalletOnEachOther() throws NoWalletsFoundException,InsufficientBalanceException {
     Wallet firstWallet = new Wallet("George", 1000);
     Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
     long createdWalletId = createdGeorgeWallet.getId();
-    Transaction credit = new Transaction(Transaction.TransactionType.CREDIT, 100);
+    Transactions credit = new Transactions(Transactions.TransactionType.CREDIT, 100);
 
-    walletService.createTransaction(credit, createdWalletId);
+    walletService.performTransaction(credit, createdWalletId);
 
     Wallet fetchedWallet = walletRepository.findById(createdWalletId).get();
-    Transaction transactionOnWallet = getTransactionAssociatedWithWallet(fetchedWallet);
-    Transaction savedTransaction = getLastSavedTransaction(transactionOnWallet);
-    assertEquals(fetchedWallet.getId(), transactionOnWallet.getWallet().getId());
-    assertNotNull(savedTransaction);
+    Transactions transactionsOnWallet = getTransactionAssociatedWithWallet(fetchedWallet);
+    Transactions savedTransactions = getLastSavedTransaction(transactionsOnWallet);
+    assertEquals(fetchedWallet.getId(), transactionsOnWallet.getWallet().getId());
+    assertNotNull(savedTransactions);
   }
 
   @Test
-  void shouldDeleteWalletAndItsTransactions() throws UserWalletDoesNotExistException {
+  void expectWalletAndItsTransactionsDeleted() throws NoWalletsFoundException,InsufficientBalanceException {
     Wallet firstWallet = new Wallet("George", 1000);
     Wallet createdWallet = walletService.createWallet(firstWallet);
     long createdWalletId = createdWallet.getId();
-    Transaction credit = new Transaction(Transaction.TransactionType.CREDIT, 100);
+    Transactions credit = new Transactions(Transactions.TransactionType.CREDIT, 100);
     createdWallet = walletRepository.findById(createdWalletId).get();
-    walletService.createTransaction(credit, createdWalletId);
+    walletService.performTransaction(credit, createdWalletId);
 
     walletService.deleteWallet(createdWalletId);
 
@@ -168,13 +169,10 @@ class WalletServiceTest {
   }
 
   /*Write tests for fetch all transactions - 3 cases */
-
-  /*Write tests for yesterday's requirement*/
-
   /*Write tests for validations" */
 
   private int getSavedTransactionsCount() {
-    Iterable<Transaction> allTransactions = transactionRepository.findAll();
+    Iterable<Transactions> allTransactions = transactionRepository.findAll();
     int size = 0;
     if (allTransactions instanceof Collection<?>) {
       size = ((Collection<?>) allTransactions).size();
@@ -182,11 +180,11 @@ class WalletServiceTest {
     return size;
   }
 
-  private Transaction getTransactionAssociatedWithWallet(Wallet fetchedWallet) {
+  private Transactions getTransactionAssociatedWithWallet(Wallet fetchedWallet) {
     return fetchedWallet.getTransactions().get(0);
   }
 
-  private Transaction getLastSavedTransaction(Transaction transactionOnWallet) {
-    return transactionRepository.findById(transactionOnWallet.getId()).get();
+  private Transactions getLastSavedTransaction(Transactions transactionsOnWallet) {
+    return transactionRepository.findById(transactionsOnWallet.getId()).get();
   }
 }

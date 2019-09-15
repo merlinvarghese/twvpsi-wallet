@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -13,20 +14,26 @@ import java.util.Objects;
 class Wallet {
 
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @JsonProperty
   private Long id;
 
   @JsonProperty
-  //@NotEmpty(message = "Please provide a name")
+  @NotNull(message = "Please provide a name")
   private String name;
 
   @JsonProperty
-  //@NotEmpty(message = "Please provide a balance amount")
+  @NotNull(message = "Please provide a balance amount")
+  @DecimalMin("0.0")
   private double balance;
 
   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "wallet")
-  private List<Transaction> transactions;
+  @JsonProperty
+  private List<Transactions> transactions;
+
+  Wallet() {
+
+  }
 
   Wallet(String name, double balance) {
     this.name = name;
@@ -37,19 +44,15 @@ class Wallet {
     this.id = id;
     this.name = name;
     this.balance = balance;
-    this.transactions = new ArrayList<com.example.demo.Transaction>();
+    this.transactions = new ArrayList<Transactions>();
   }
 
-  @JsonIgnore
+  // @JsonIgnore
   String getBalance() {
     return Double.toString(balance);
   }
 
-  Wallet() {
-
-  }
-
-  @JsonIgnore
+  // @JsonIgnore
   public Long getId() {
     return id;
   }
@@ -64,14 +67,14 @@ class Wallet {
     return name;
   }
 
-  void process(com.example.demo.Transaction transaction) {
-    balance += transaction.getConvertedAmount();
+  void updateBalance(Transactions transaction) {
+    balance += transaction.processedAmount();
     transaction.bindWallet(this);
-    transactions.add(transaction);
+    this.transactions.add(transaction);
   }
 
-  @JsonIgnore
-  public List<com.example.demo.Transaction> getTransactions() {
+  //@JsonIgnore
+  public List<Transactions> getTransactions() {
     return transactions;
   }
 
@@ -84,14 +87,21 @@ class Wallet {
     return name.equals(otherName);
   }
 
+  /*void updateBalance(Transactions transaction) throws InsufficientBalanceException {
+    if (transaction.getTransactionType().equals(Transactions.TransactionType.DEBIT)
+        && this.balance < transaction.getAmount()) {
+      throw new InsufficientBalanceException();
+    }
+    this.balance = this.balance + transaction.processedAmount();
+    this.transactions.add(transaction);
+  }*/
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Wallet wallet = (Wallet) o;
-    return Double.compare(wallet.balance, balance) == 0 &&
-        Objects.equals(id, wallet.id) &&
-        Objects.equals(name, wallet.name);
+    return Objects.equals(id, wallet.id);
   }
 
   @Override
@@ -99,4 +109,13 @@ class Wallet {
     return Objects.hash(id);
   }
 
+  @Override
+  public String toString() {
+    return "Wallet{" +
+        "id=" + id +
+        ", name='" + name + '\'' +
+        ", balance=" + balance +
+        ", transactions=" + transactions +
+        '}';
+  }
 }

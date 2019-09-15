@@ -5,20 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -27,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     WalletService.class
 })
 @WebMvcTest
+@Validated
 class WalletControllerTest {
 
   @Autowired
@@ -39,9 +35,8 @@ class WalletControllerTest {
   CustomGlobalExceptionHandler customGlobalExceptionHandler;
 
   @Test
-  void shouldCreateWalletForAUser() throws Exception {
+  void expectWalletCreatedForAUser() throws Exception {
     Wallet wallet = new Wallet(1, "Merlin", 1000);
-    ResponseEntity<Wallet> response = new ResponseEntity<>(wallet, HttpStatus.CREATED);
     when(walletService.createWallet(any(Wallet.class))).thenReturn(wallet);
 
     mockMvc.perform(post("/wallets")
@@ -54,7 +49,7 @@ class WalletControllerTest {
   }
 
   @Test
-  void shouldReturnAllWalletsWhenNoIdGiven() throws Exception {
+  void expectAllWalletsReturnedWhenNoIDGiven() throws Exception {
     List<Wallet> wallets = Arrays.asList(
         new Wallet(1, "George", 1000.0),
         new Wallet(2, "Joseph", 2000.0));
@@ -63,7 +58,8 @@ class WalletControllerTest {
     mockMvc.perform(get("/wallets")
         .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
-        .andExpect(content().json("[{\"name\":\"George\",\"balance\":1000.0}, {\"name\":\"Joseph\",\"balance\":2000.0}]"));
+        .andExpect(content().json("[{\"id\":1,\"name\":\"George\",\"balance\":1000.0}, " +
+            "{\"id\":2,\"name\":\"Joseph\",\"balance\":2000.0}]"));
 
     verify(walletService).getAllWallets();
   }
@@ -82,18 +78,6 @@ class WalletControllerTest {
   }
 
   @Test
-  void shouldReturnAWalletWithGivenUserName() throws Exception {
-    when(walletService.getWalletByName("Merlin")).thenReturn(new Wallet("Merlin", 1000));
-
-    mockMvc.perform(get("/wallets?name=Merlin")
-        .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(content().json("[{\"name\":\"Merlin\",\"balance\":1000.0}]"));
-
-    verify(walletService).getWalletByName(any(String.class));
-  }
-
-  @Test
   void shouldDeleteWalletWithGivenUserId() throws Exception {
     mockMvc.perform(delete("/wallets/{id}", "1")
         .contentType(MediaType.APPLICATION_JSON))
@@ -104,57 +88,56 @@ class WalletControllerTest {
 
   @Test
   void shouldCreateTransactionOnWallet() throws Exception {
-    Transaction transaction = new Transaction(Transaction.TransactionType.CREDIT, 1000);
-    when(walletService.createTransaction(any(Transaction.class), any(Long.class))).thenReturn(transaction);
+    Transactions transactions = new Transactions(Transactions.TransactionType.CREDIT, 1000);
+    when(walletService.performTransaction(any(Transactions.class), any(Long.class))).thenReturn(transactions);
 
     mockMvc.perform(post("/wallets/1/transactions")
         .content("{\"transactionType\":\"CREDIT\",\"amount\":100}")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isCreated());
 
-    verify(walletService).createTransaction(any(Transaction.class), any(Long.class));
+    verify(walletService).performTransaction(any(Transactions.class), any(Long.class));
   }
 
-  /*Write tests for fetch all transactions - 3 cases */
+  @Test
+  void expectWalletNotFoundExceptionWhenRequestedWalletNotExist() throws Exception {
+    when(walletService.getWalletById(1L)).thenThrow(new NoWalletsFoundException("Wallet Not Found"));
 
-  /*@Test
-  void shouldGetBadRequestForNameIsEmpty() throws Exception {
-    when(walletService.getWalletById(10L)).thenThrow(UserWalletDoesNotExistException.class);
+    mockMvc.perform(get("/wallets/{id}", "1")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
 
-    when(customGlobalExceptionHandler.handleMethodArgumentNotValid(any(MethodArgumentNotValidException.class),
-        any(HttpHeaders.class), any(HttpStatus.class), any(WebRequest.class)))
-        .thenReturn((new ResponseEntity<String>(HttpStatus.BAD_REQUEST)));
+    verify(walletService).getWalletById(1L);
+  }
 
-    mockMvc.perform(get("/wallets/10"));
-    System.out.println("Status : " + status());
-    verify(walletService).getWalletById(10L);
-  }*/
+  @Test
+  void expectWalletNotFoundExceptionWhenTryingToDeleteNonExistingWallet() throws Exception {
+    doThrow(new NoWalletsFoundException("")).doNothing().when(walletService).deleteWallet(1L);
+  }
 
+  @Test
+  void expectNoWalletFoundWhenTryingToGetAllTransactions() throws Exception {
+        Wallet wallet = new Wallet(1L, "Merlin", 1000.0);
+        walletService.createWallet(wallet);
+        when(walletService.getAllTransactions(1L)).thenThrow(new NoWalletsFoundException(""));
+        mockMvc.perform(get("/wallets/1/transactions")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+        verify(walletService).getAllTransactions(1L);
+  }
+
+  @Test
+  void expectInsufficientBalanceExceptionWhenRequestedAmountNotPresent() throws Exception {
+    Wallet wallet = new Wallet(1L, "A", 100.0);
+    walletService.createWallet(wallet);
+
+    when(walletService.performTransaction( any(Transactions.class),anyLong())).thenThrow(new InsufficientBalanceException());
+
+    mockMvc.perform(post("/wallets/1/transactions")
+        .content("{\"transactionType\":\"CREDIT\",\"amount\":1500}")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnprocessableEntity());
+    verify(walletService).performTransaction( any(Transactions.class),anyLong());
+  }
 }
-  /*
-  @Test
-  void shouldHandleExceptionWhenWalletWithIdNotFound() throws Exception {
-    when(walletService.getWalletById(10L)).thenThrow(UserWalletDoesNotExistException.class);
 
-    mockMvc.perform(get("/wallets/10"));
-    System.out.println("Status : " + status());
-    verify(walletService).getWalletById(10L);
-  }
-
-  @Test
-  void shouldHandleExceptionWhenTryingToDeleteAWalletNotPresent() throws Exception {
-    //when(walletService.deleteWallet(10L)).thenThrow(NoWalletsFoundException.class);
-    doThrow(NoWalletsFoundException).when();
-
-    mockMvc.perform(get("/wallets/10")).andExpect(status().isNotFound());
-
-  }
-
-  @Test
-  void shouldHandleExceptionWhenNoTransactionsFoundForAWallet() throws Exception {
-  }
-
-  @Test
-  void shouldHandleExceptionWhenTryingToCreateTransactionForAWalletNotPresent() throws Exception {
-  }
-   */
