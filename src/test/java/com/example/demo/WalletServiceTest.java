@@ -168,9 +168,6 @@ class WalletServiceTest {
     assertTrue(count == 0);
   }
 
-  /*Write tests for fetch all transactions - 3 cases */
-  /*Write tests for validations" */
-
   private int getSavedTransactionsCount() {
     Iterable<Transactions> allTransactions = transactionRepository.findAll();
     int size = 0;

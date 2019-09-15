@@ -65,7 +65,7 @@ class WalletControllerTest {
   }
 
   @Test
-  void shouldReturnAWalletWithGivenUserId() throws Exception {
+  void expectWalletReturnedWithGivenUserId() throws Exception {
 
     when(walletService.getWalletById((long) 1)).thenReturn(new Wallet("Merlin", 1000));
 
@@ -78,7 +78,7 @@ class WalletControllerTest {
   }
 
   @Test
-  void shouldDeleteWalletWithGivenUserId() throws Exception {
+  void expectWalletDeletedWithGivenUserId() throws Exception {
     mockMvc.perform(delete("/wallets/{id}", "1")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
@@ -87,7 +87,7 @@ class WalletControllerTest {
   }
 
   @Test
-  void shouldCreateTransactionOnWallet() throws Exception {
+  void expectTransactionsCreatedOnWallet() throws Exception {
     Transactions transactions = new Transactions(Transactions.TransactionType.CREDIT, 1000);
     when(walletService.performTransaction(any(Transactions.class), any(Long.class))).thenReturn(transactions);
 
@@ -116,7 +116,7 @@ class WalletControllerTest {
   }
 
   @Test
-  void expectNoWalletFoundWhenTryingToGetAllTransactions() throws Exception {
+  void expectNoWalletFoundWhenTryingToGetTransactionsForWalletWithNoTransactions() throws Exception {
         Wallet wallet = new Wallet(1L, "Merlin", 1000.0);
         walletService.createWallet(wallet);
         when(walletService.getAllTransactions(1L)).thenThrow(new NoWalletsFoundException(""));
@@ -128,13 +128,13 @@ class WalletControllerTest {
 
   @Test
   void expectInsufficientBalanceExceptionWhenRequestedAmountNotPresent() throws Exception {
-    Wallet wallet = new Wallet(1L, "A", 100.0);
-    walletService.createWallet(wallet);
+   Wallet wallet = new Wallet(1L, "A", 100.0);
+   walletService.createWallet(wallet);
 
     when(walletService.performTransaction( any(Transactions.class),anyLong())).thenThrow(new InsufficientBalanceException());
 
     mockMvc.perform(post("/wallets/1/transactions")
-        .content("{\"transactionType\":\"CREDIT\",\"amount\":1500}")
+        .content("{\"transactionType\":\"DEBIT\",\"amount\":1500}")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isUnprocessableEntity());
     verify(walletService).performTransaction( any(Transactions.class),anyLong());
