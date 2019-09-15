@@ -8,30 +8,16 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-
 
 @ComponentScan(basePackageClasses = {
     WalletService.class
@@ -45,9 +31,6 @@ class WalletControllerTest {
 
   @MockBean
   private WalletService walletService;
-
-  //@MockBean
-  //CustomGlobalExceptionHandler customGlobalExceptionHandler;
 
   @Test
   void expectWalletCreatedForAUser() throws Exception {
@@ -132,36 +115,46 @@ class WalletControllerTest {
 
   @Test
   void expectNoWalletFoundWhenTryingToGetTransactionsForWalletWithNoTransactions() throws Exception {
-        Wallet wallet = new Wallet(1L, "Merlin", 1000.0);
-        walletService.createWallet(wallet);
-        when(walletService.getAllTransactions(1L)).thenThrow(new NoWalletsFoundException(""));
-        mockMvc.perform(get("/wallets/1/transactions")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-        verify(walletService).getAllTransactions(1L);
+    Wallet wallet = new Wallet(1L, "Merlin", 1000.0);
+    walletService.createWallet(wallet);
+    when(walletService.getAllTransactions(1L)).thenThrow(new NoWalletsFoundException(""));
+    mockMvc.perform(get("/wallets/1/transactions")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+    verify(walletService).getAllTransactions(1L);
   }
 
   @Test
   void expectInsufficientBalanceExceptionWhenRequestedAmountNotPresent() throws Exception {
-   Wallet wallet = new Wallet(1L, "A", 100.0);
-   walletService.createWallet(wallet);
+    Wallet wallet = new Wallet(1L, "A", 100.0);
+    walletService.createWallet(wallet);
 
-    when(walletService.performTransaction( any(Transactions.class),anyLong())).thenThrow(new InsufficientBalanceException());
+    when(walletService.performTransaction(any(Transactions.class), anyLong())).thenThrow(new InsufficientBalanceException());
 
     mockMvc.perform(post("/wallets/1/transactions")
         .content("{\"transactionType\":\"DEBIT\",\"amount\":1500}")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isUnprocessableEntity());
-    verify(walletService).performTransaction( any(Transactions.class),anyLong());
+    verify(walletService).performTransaction(any(Transactions.class), anyLong());
   }
 
   @Test
-  public void expectBadRequestWhenUserNameIsEmpty() throws Exception {
+  void expectBadRequestWhenUserNameIsEmpty() throws Exception {
     mockMvc.perform(post("/wallets")
         .content("{\"name\":\"\", \"Balance\":\"200\"}")
         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.errors", hasItem("Please provide a name")));
+
+    verify(walletService, never()).createWallet(any(Wallet.class));
+  }
+
+  @Test
+  void expectBadRequestWhenBalanceIsNegative() throws Exception {
+    mockMvc.perform(post("/wallets")
+        .content("{\"name\":\"Merlin\", \"balance\":\"-100\"}")
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest());
 
     verify(walletService, never()).createWallet(any(Wallet.class));
   }

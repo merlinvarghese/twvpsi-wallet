@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,8 +23,8 @@ class Wallet {
   private String name;
 
   @JsonProperty
-  @NotNull(message = "Please provide a balance amount")
-  @DecimalMin("0.0")
+  // @NotNull(message = "Please provide a balance amount")
+  @DecimalMin("1.0")
   private double balance;
 
   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "wallet")
