@@ -110,7 +110,7 @@ class WalletServiceTest {
   }
 
   @Test
-  void expectBalanceUpdatedWithCreditTransaction() throws NoWalletsFoundException,InsufficientBalanceException {
+  void expectBalanceUpdatedWithCreditTransaction() throws NoWalletsFoundException, InsufficientBalanceException {
     Wallet firstWallet = new Wallet("George", 1000);
     Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
     long createdWalletId = createdGeorgeWallet.getId();
@@ -119,11 +119,11 @@ class WalletServiceTest {
     Transactions createdTransactions = walletService.performTransaction(creditTransactions, createdWalletId);
 
     Wallet fetchedWallet = walletRepository.findById(createdWalletId).get();
-    assertEquals(1100.0,fetchedWallet.getBalance());
+    assertEquals(1100.0, fetchedWallet.getBalance());
   }
 
   @Test
-  void expectTransactionCreatedForWallet() throws NoWalletsFoundException,InsufficientBalanceException {
+  void expectTransactionCreatedForWallet() throws NoWalletsFoundException, InsufficientBalanceException {
     Wallet firstWallet = new Wallet("George", 1000);
     Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
     long createdWalletId = createdGeorgeWallet.getId();
@@ -136,7 +136,7 @@ class WalletServiceTest {
   }
 
   @Test
-  void expectReferencesCreatedOfTransactionAndWalletOnEachOther() throws NoWalletsFoundException,InsufficientBalanceException {
+  void expectReferencesCreatedOfTransactionAndWalletOnEachOther() throws NoWalletsFoundException, InsufficientBalanceException {
     Wallet firstWallet = new Wallet("George", 1000);
     Wallet createdGeorgeWallet = walletService.createWallet(firstWallet);
     long createdWalletId = createdGeorgeWallet.getId();
@@ -152,7 +152,7 @@ class WalletServiceTest {
   }
 
   @Test
-  void expectWalletAndItsTransactionsDeleted() throws NoWalletsFoundException,InsufficientBalanceException {
+  void expectWalletAndItsTransactionsDeleted() throws NoWalletsFoundException, InsufficientBalanceException {
     Wallet firstWallet = new Wallet("George", 1000);
     Wallet createdWallet = walletService.createWallet(firstWallet);
     long createdWalletId = createdWallet.getId();
