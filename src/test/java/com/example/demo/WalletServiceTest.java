@@ -119,7 +119,7 @@ class WalletServiceTest {
     Transactions createdTransactions = walletService.performTransaction(creditTransactions, createdWalletId);
 
     Wallet fetchedWallet = walletRepository.findById(createdWalletId).get();
-    assertTrue("1100.0".equals(fetchedWallet.getBalance()));
+    assertEquals(1100.0,fetchedWallet.getBalance());
   }
 
   @Test

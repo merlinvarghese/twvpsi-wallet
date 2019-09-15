@@ -5,18 +5,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+
 
 @ComponentScan(basePackageClasses = {
     WalletService.class
@@ -29,10 +44,10 @@ class WalletControllerTest {
   private MockMvc mockMvc;
 
   @MockBean
-  WalletService walletService;
+  private WalletService walletService;
 
-  @MockBean
-  CustomGlobalExceptionHandler customGlobalExceptionHandler;
+  //@MockBean
+  //CustomGlobalExceptionHandler customGlobalExceptionHandler;
 
   @Test
   void expectWalletCreatedForAUser() throws Exception {
@@ -139,5 +154,17 @@ class WalletControllerTest {
         .andExpect(status().isUnprocessableEntity());
     verify(walletService).performTransaction( any(Transactions.class),anyLong());
   }
+
+  @Test
+  public void expectBadRequestWhenUserNameIsEmpty() throws Exception {
+    mockMvc.perform(post("/wallets")
+        .content("{\"name\":\"\", \"Balance\":\"200\"}")
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.errors", hasItem("Please provide a name")));
+
+    verify(walletService, never()).createWallet(any(Wallet.class));
+  }
+
 }
 

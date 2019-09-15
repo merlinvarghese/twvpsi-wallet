@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ class Wallet {
   private Long id;
 
   @JsonProperty
-  @NotNull(message = "Please provide a name")
+  @NotEmpty(message = "Please provide a name")
   private String name;
 
   @JsonProperty
@@ -48,8 +49,8 @@ class Wallet {
   }
 
   // @JsonIgnore
-  String getBalance() {
-    return Double.toString(balance);
+  double getBalance() {
+    return balance;
   }
 
   // @JsonIgnore
