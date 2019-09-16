@@ -86,7 +86,7 @@ class WalletControllerTest {
 
   @Test
   void expectTransactionsCreatedOnWallet() throws Exception {
-    Transactions transactions = new Transactions(Transactions.TransactionType.CREDIT, 1000);
+    Transactions transactions = new Transactions(Transactions.TYPE.CREDIT, 1000);
     when(walletService.performTransaction(any(Transactions.class), any(Long.class))).thenReturn(transactions);
 
     mockMvc.perform(post("/wallets/1/transactions")
@@ -110,14 +110,18 @@ class WalletControllerTest {
 
   @Test
   void expectWalletNotFoundExceptionWhenTryingToDeleteNonExistingWallet() throws Exception {
-    doThrow(new NoWalletsFoundException("")).doNothing().when(walletService).deleteWallet(1L);
+    doThrow(NoWalletsFoundException.class).when(walletService).deleteWallet(1L);
+
+    mockMvc.perform(delete("/wallets/{id}", "1")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
   }
 
   @Test
   void expectNoWalletFoundWhenTryingToGetTransactionsForWalletWithNoTransactions() throws Exception {
     Wallet wallet = new Wallet(1L, "Merlin", 1000.0);
     walletService.createWallet(wallet);
-    when(walletService.getAllTransactions(1L)).thenThrow(new NoWalletsFoundException(""));
+    when(walletService.getAllTransactions(1L)).thenThrow(new NoWalletsFoundException("No wallet found"));
     mockMvc.perform(get("/wallets/1/transactions")
         .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
@@ -126,7 +130,7 @@ class WalletControllerTest {
 
   @Test
   void expectInsufficientBalanceExceptionWhenRequestedAmountNotPresent() throws Exception {
-    Wallet wallet = new Wallet(1L, "A", 100.0);
+    Wallet wallet = new Wallet(1L, "Merlin", 100.0);
     walletService.createWallet(wallet);
 
     when(walletService.performTransaction(any(Transactions.class), anyLong())).thenThrow(new InsufficientBalanceException());
@@ -162,7 +166,7 @@ class WalletControllerTest {
   @Test
   void expectBadRequestWhenUserNameIsTooLong() throws Exception {
     mockMvc.perform(post("/wallets")
-        .content("{\"name\":\"ANameTooooLong\", \"balance\":\"100\"}")
+        .content("{\"name\":\"NameIsTooooLong\", \"balance\":\"100\"}")
         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest());
 

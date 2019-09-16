@@ -3,7 +3,6 @@ package com.example.demo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -12,15 +11,12 @@ public class WalletService {
   @Autowired
   WalletRepository walletRepository;
 
-  @Autowired
-  private TransactionRepository transactionRepository;
-
   Wallet createWallet(Wallet wallet) {
     return walletRepository.save(wallet);
   }
 
   Wallet getWalletById(Long id) throws NoWalletsFoundException {
-    return walletRepository.findById(id).orElseThrow(() -> new NoWalletsFoundException(""));
+    return walletRepository.findById(id).orElseThrow(() -> new NoWalletsFoundException("No wallet found for this user"));
   }
 
   Wallet getWalletByName(String inputName) throws NoWalletsFoundException {
@@ -31,32 +27,20 @@ public class WalletService {
       }
     }
 
-    throw new NoWalletsFoundException("A Wallet does not exist for this user");
+    throw new NoWalletsFoundException("No wallet found for this user");
   }
 
-  List<Wallet> getAllWallets() throws NoWalletsFoundException {
-    List<Wallet> wallets = new LinkedList<>();
-    Iterable<Wallet> fetchedWallets = walletRepository.findAll();
-
-    for (Wallet wallet : fetchedWallets) {
-      wallets.add(wallet);
-    }
-
-    if (wallets.size() > 0) {
-      return wallets;
-    }
-
-    throw new NoWalletsFoundException("No Wallets found");
+  List<Wallet> getAllWallets() {
+    return (List<Wallet>) walletRepository.findAll();
   }
 
   void deleteWallet(Long id) throws NoWalletsFoundException {
     try {
-      getWalletById(id);
-    } catch (NoWalletsFoundException walletNotFound) {
-      throw walletNotFound;
+      walletRepository.deleteById(id);
+    } catch (Exception e) {
+      throw new NoWalletsFoundException("No wallet found for this user");
     }
-
-    walletRepository.deleteById(id);
+    //walletRepository.deleteById(id).orElseThrow(NoWalletsFoundException::new);
   }
 
   public Transactions performTransaction(Transactions transaction, Long walletId)
@@ -66,7 +50,8 @@ public class WalletService {
     walletToUpdate.updateBalance(transaction);
     walletRepository.save(walletToUpdate);
     Wallet updatedWallet = getWalletById(walletId);
-    return updatedWallet.getTransactions().get(updatedWallet.getTransactionsSize() - 1);
+    List<Transactions> transactions = updatedWallet.getTransactions();
+    return transactions.get(updatedWallet.getTransactionsSize() - 1);
   }
 
   public List<Transactions> getAllTransactions(long walletId) throws NoWalletsFoundException {

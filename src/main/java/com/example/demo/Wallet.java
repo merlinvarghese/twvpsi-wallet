@@ -48,12 +48,10 @@ class Wallet {
     this.transactions = new ArrayList<Transactions>();
   }
 
-  // @JsonIgnore
   double getBalance() {
     return balance;
   }
 
-  // @JsonIgnore
   public Long getId() {
     return id;
   }
@@ -68,34 +66,24 @@ class Wallet {
     return name;
   }
 
-  void updateBalance(Transactions transaction) {
-    balance += transaction.processedAmount();
-    transaction.bindWallet(this);
-    this.transactions.add(transaction);
-  }
-
-  //@JsonIgnore
   public List<Transactions> getTransactions() {
     return transactions;
   }
 
   @JsonIgnore
-  public int getTransactionsSize() {
+   int getTransactionsSize() {
     return transactions.size();
   }
 
-  public boolean isNameEqual(String otherName) {
+  boolean isNameEqual(String otherName) {
     return name.equals(otherName);
   }
 
-  /*void updateBalance(Transactions transaction) throws InsufficientBalanceException {
-    if (transaction.getTransactionType().equals(Transactions.TransactionType.DEBIT)
-        && this.balance < transaction.getAmount()) {
-      throw new InsufficientBalanceException();
-    }
-    this.balance = this.balance + transaction.processedAmount();
+  void updateBalance(Transactions transaction) {
+    balance += transaction.processedAmount();
+    transaction.bindWallet(this);
     this.transactions.add(transaction);
-  }*/
+  }
 
   @Override
   public boolean equals(Object o) {

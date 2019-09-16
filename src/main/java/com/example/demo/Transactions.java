@@ -9,7 +9,7 @@ import java.util.Objects;
 @Entity
 public class Transactions {
 
-  enum TransactionType {
+  enum TYPE {
     DEBIT,
     CREDIT
   }
@@ -20,7 +20,7 @@ public class Transactions {
   private Long id;
 
   @JsonProperty
-  private TransactionType transactionType;
+  private TYPE type;
 
   @JsonProperty
   private double amount;
@@ -30,14 +30,14 @@ public class Transactions {
   @JoinColumn(name = "wallet_id")
   private Wallet wallet;
 
-  public Transactions(TransactionType transactionType, double amount) {
-    this.transactionType = transactionType;
+  public Transactions(TYPE type, double amount) {
+    this.type = type;
     this.amount = amount;
   }
 
-  public Transactions(Long id, TransactionType transactionType, double amount) {
+  public Transactions(Long id, TYPE type, double amount) {
     this.id = id;
-    this.transactionType = transactionType;
+    this.type = type;
     this.amount = amount;
   }
 
@@ -50,13 +50,11 @@ public class Transactions {
   }
 
   @JsonIgnore
-  // @NotEmpty(message = "Please provide a transaction type")
-  public TransactionType getTransactionType() {
-    return transactionType;
+  public TYPE getType() {
+    return type;
   }
 
   @JsonIgnore
-  //@NotEmpty(message = "Please provide an amount")
   public double getAmount() {
     return amount;
   }
@@ -66,25 +64,16 @@ public class Transactions {
     return wallet;
   }
 
-  public void bindWallet(Wallet walletToUpdate) {
+  void bindWallet(Wallet walletToUpdate) {
     this.wallet = walletToUpdate;
   }
 
-  /*public double getConvertedAmount() {
-    if (transactionType.equals(TransactionType.CREDIT)) {
-      return amount;
-    } else if (transactionType.equals(TransactionType.DEBIT)) {
-      return amount * -1;
-    }
-    return 0;
-  }*/
-
   double processedAmount() {
-    return transactionType.equals(TransactionType.CREDIT) ? amount : (amount * -1);
+    return type.equals(TYPE.CREDIT) ? amount : (amount * -1);
   }
 
   @Override
-  public boolean equals(Object o) {
+   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Transactions that = (Transactions) o;

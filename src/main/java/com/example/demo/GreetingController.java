@@ -17,7 +17,5 @@ class GreetingController {
   @GetMapping("/welcome")
   String welcomeUser(@RequestParam(value = "userName") String name) {
     return "Hello " + name;
-
   }
-
 }
